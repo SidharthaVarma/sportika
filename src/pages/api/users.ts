@@ -1,4 +1,4 @@
-// src/pages/api/user.ts
+// src/pages/api/users.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import Joi from 'joi';
