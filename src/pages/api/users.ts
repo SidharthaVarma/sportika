@@ -1,4 +1,3 @@
-// src/pages/api/users.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import Joi from 'joi';
@@ -109,46 +108,88 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } finally {
       await prisma.$disconnect();
     }
-  } else if (req.method === 'GET') {
-    try {
-      const { error, value } = getValidation.validate(req.body);
-      if (error) {
-        res.status(400).json({ message: error.details[0].message });
-        return;
-      }
+//   } else if (req.method === 'GET') {
+//     try {
+//       const { error, value } = getValidation.validate(req.body);
+//       if (error) {
+//         res.status(400).json({ message: error.details[0].message });
+//         return;
+//       }
 
-      const { email, password } = value;
+//       const { email, password } = value;
 
-      // Find user
-      const existingUser = await prisma.user.findUnique({ where: { email } });
-      if (!existingUser) {
-        res.status(401).json({ error: 'User not found' });
-        return;
-      }
+//       // Find user
+//       const existingUser = await prisma.user.findUnique({ where: { email } });
+//       if (!existingUser) {
+//         res.status(401).json({ error: 'User not found' });
+//         return;
+//       }
 
-      // Check password
-      const passwordMatch = await bcrypt.compare(password, existingUser.password);
-      if (!passwordMatch) {
-        res.status(401).json({ message: 'Invalid password' });
-        return;
-      }
+//       // Check password
+//       const passwordMatch = await bcrypt.compare(password, existingUser.password);
+//       if (!passwordMatch) {
+//         res.status(401).json({ message: 'Invalid password' });
+//         return;
+//       }
 
-      res.status(200).json({
-        fname: existingUser.fname,
-        lname: existingUser.lname, // Fixed typo
-        email: existingUser.email,
-        number: existingUser.number,
-        rednumber: existingUser.rednumber,
-        branch: existingUser.branch,
-        token: existingUser.token,
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Internal server error' });
-    } finally {
-      await prisma.$disconnect();
+//       res.status(200).json({
+//         fname: existingUser.fname,
+//         lname: existingUser.lname, // Fixed typo
+//         email: existingUser.email,
+//         number: existingUser.number,
+//         rednumber: existingUser.rednumber,
+//         branch: existingUser.branch,
+//         token: existingUser.token,
+//       });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ message: 'Internal server error' });
+//     } finally {
+//       await prisma.$disconnect();
+//     }
+//   } else {
+//     res.status(405).json({ message: 'Method not allowed' });
+//   }
+// }
+} else if (req.method === 'GET') {
+  try {
+    const { email, password } = req.query;
+
+    // Validate the input
+    const { error } = getValidation.validate({ email, password });
+    if (error) {
+      return res.status(400).json({ message: error.details[0].message });
     }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' });
+
+    // Find user
+    const existingUser = await prisma.user.findUnique({ where: { email: String(email) } });
+    if (!existingUser) {
+      return res.status(401).json({ error: 'User not found' });
+    }
+
+    // Check password
+    const passwordMatch = await bcrypt.compare(String(password), existingUser.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: 'Invalid password' });
+    }
+
+    // Successful login response
+    return res.status(200).json({
+      fname: existingUser.fname,
+      lname: existingUser.lname,
+      email: existingUser.email,
+      number: existingUser.number,
+      rednumber: existingUser.rednumber,
+      branch: existingUser.branch,
+      token: existingUser.token,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: 'Internal server error' });
+  } finally {
+    await prisma.$disconnect();
   }
+} else {
+  return res.status(405).json({ message: 'Method not allowed' });
+}
 }
