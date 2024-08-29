@@ -115,6 +115,7 @@ import React from "react";
 import Nav from "../components/Nav";
 import ImageSlider from "../components/ImageSlider";
 import Cards from "../components/Cards";
+// import EventsList from "../components/EventsList";
 
 export default function Home() {
   const images = [
@@ -134,8 +135,6 @@ export default function Home() {
         <ImageSlider images={images} />
       </div>
       <div className="flex flex-wrap justify-center mt-8">
-        <Cards />
-        <Cards />
         <Cards />
       </div>
     </main>

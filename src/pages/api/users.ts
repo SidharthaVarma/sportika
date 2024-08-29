@@ -71,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // Check if user exists
       const existingUser = await prisma.user.findUnique({ where: { email } });
       if (existingUser) {
-        res.status(409).json({ error: 'User already exists' });
+        res.status(409).json({ message: 'User already exists' }); //instead of message there was error
         return;
       }
 
@@ -164,7 +164,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Find user
     const existingUser = await prisma.user.findUnique({ where: { email: String(email) } });
     if (!existingUser) {
-      return res.status(401).json({ error: 'User not found' });
+      return res.status(401).json({ message: 'User not found' }); //before instead of message there was error
     }
 
     // Check password

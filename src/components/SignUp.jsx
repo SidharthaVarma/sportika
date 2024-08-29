@@ -29,7 +29,7 @@ const SignUp = () => {
       if (response.ok) {
         setSuccess('Sign up successful! You can now log in.');
       } else {
-        setError(data.message);
+        setError(data.message || 'Sign up failed');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
